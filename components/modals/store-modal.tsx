@@ -21,7 +21,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 
 const formSchema = z.object({
-    name: z.string().min(1, "String must be at least 1 character"),
+    name: z.string().min(3, "String must be at least 3 character(s)"),
 });
 
 export const StoreModal = () => {
@@ -39,8 +39,7 @@ export const StoreModal = () => {
         try {
             setLoading(true);
             const response = await axios.post("/api/stores", value);
-
-            console.log(response);
+            window.location.href = `/${response.data.id}`;
             toast.success("Store created.");
         } catch {
             toast.error("Something went wrong");
