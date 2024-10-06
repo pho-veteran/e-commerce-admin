@@ -26,7 +26,7 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
         setIsMounted(true);
     }, []);
 
-    const onUpload = (result: any) => {
+    const onSuccess = (result: any) => {
         onChange(result.info.secure_url);
     };
 
@@ -36,7 +36,7 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
 
     return (
         <div>
-            <div className="mb-4 flex items-center gap-4">
+            <div className="mb-4 flex items-center gap-4 flex-wrap">
                 {value.map((url) => {
                     return (
                         <div
@@ -48,26 +48,22 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
                                     type="button"
                                     variant="destructive"
                                     size="icon"
+                                    onClick={() => onRemove(url)}
                                 >
-                                    <Trash
-                                        className="w-4 h-4"
-                                        onClick={() => {
-                                            onRemove(url);
-                                        }}
-                                    />
+                                    <Trash className="w-4 h-4" />
                                 </Button>
                             </div>
                             <Image
                                 fill
                                 className="object-cover"
-                                alt="Billboard Image"
+                                alt="Image"
                                 src={url}
                             />
                         </div>
                     );
                 })}
             </div>
-            <CldUploadWidget onSuccess={onUpload} uploadPreset="eutylaae">
+            <CldUploadWidget onSuccess={onSuccess} uploadPreset="eutylaae">
                 {({ open }) => {
                     const onClick = () => {
                         open();

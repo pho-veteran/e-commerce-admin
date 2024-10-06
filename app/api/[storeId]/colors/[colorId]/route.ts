@@ -5,41 +5,41 @@ import { prisma } from "@/lib/prismadb";
 
 export async function GET(
     req: Request,
-    { params }: { params: { billboardId: string } }
+    { params }: { params: { colorId: string } }
 ) {
     try {
-        if (!params.billboardId) {
+        if (!params.colorId) {
             return new NextResponse("Invalid Request", { status: 400 });
         }
 
-        const billboard = await prisma.billboard.findUnique({
+        const color = await prisma.color.findUnique({
             where: {
-                id: params.billboardId,
+                id: params.colorId,
             },
         });
 
-        return NextResponse.json(billboard);
+        return NextResponse.json(color);
     } catch (error) {
-        console.error("[GET /api/billboards]", error);
+        console.error("[GET /api/colors]", error);
         return new NextResponse("Internal Server Error", { status: 500 });
     }
 }
 
 export async function PATCH(
     req: Request,
-    { params }: { params: { storeId: string; billboardId: string } }
+    { params }: { params: { storeId: string; colorId: string } }
 ) {
     try {
         const { userId }: { userId: string | null } = auth();
         const body = await req.json();
 
-        const { label, imageUrl } = body;
+        const { name, value } = body;
 
         if (!userId) {
             return new NextResponse("Unauthorized", { status: 401 });
         }
 
-        if (!label || !imageUrl || !params.storeId || !params.billboardId) {
+        if (!name || !value || !params.storeId || !params.colorId) {
             return new NextResponse("Invalid Request", { status: 400 });
         }
 
@@ -54,26 +54,26 @@ export async function PATCH(
             return new NextResponse("Unauthorized", { status: 403 });
         }
 
-        const billboard = await prisma.billboard.updateMany({
+        const color = await prisma.color.updateMany({
             where: {
-                id: params.billboardId,
+                id: params.colorId,
             },
             data: {
-                label,
-                imageUrl,
+                name,
+                value
             },
         });
 
-        return NextResponse.json(billboard);
+        return NextResponse.json(color);
     } catch (error) {
-        console.error("[PATCH /api/billboards]", error);
+        console.error("[PATCH /api/colors]", error);
         return new NextResponse("Internal Server Error", { status: 500 });
     }
 }
 
 export async function DELETE(
     req: Request,
-    { params }: { params: { storeId: string; billboardId: string } }
+    { params }: { params: { storeId: string; colorId: string } }
 ) {
     try {
         const { userId }: { userId: string | null } = auth();
@@ -82,7 +82,7 @@ export async function DELETE(
             return new NextResponse("Unauthorized", { status: 401 });
         }
 
-        if (!params.storeId || !params.billboardId) {
+        if (!params.storeId || !params.colorId) {
             return new NextResponse("Invalid Request", { status: 400 });
         }
 
@@ -97,15 +97,15 @@ export async function DELETE(
             return new NextResponse("Unauthorized", { status: 403 });
         }
 
-        const billboard = await prisma.billboard.deleteMany({
+        const color = await prisma.color.deleteMany({
             where: {
-                id: params.billboardId,
+                id: params.colorId,
             },
         });
 
-        return NextResponse.json(billboard);
+        return NextResponse.json(color);
     } catch (error) {
-        console.error("[DELETE /api/billboard]", error);
+        console.error("[DELETE /api/colors]", error);
         return new NextResponse("Internal Server Error", { status: 500 });
     }
 }

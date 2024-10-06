@@ -6,15 +6,15 @@ import { useRouter, useParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import Heading from "@/components/ui/heading";
 import { Separator } from "@/components/ui/separator";
-import { BillboardColumn, columns } from "./columns";
+import { ColorColumn, columns } from "./columns";
 import { DataTable } from "@/components/ui/data-table";
 import { ApiList } from "@/components/ui/api-alert-list";
 
-interface BillboardClientProps {
-    data: BillboardColumn[];
+interface ColorClientProps {
+    data: ColorColumn[];
 }
 
-export const BillboardClient: React.FC<BillboardClientProps> = ({ data }) => {
+export const ColorClient: React.FC<ColorClientProps> = ({ data }) => {
     const router = useRouter();
     const params = useParams();
 
@@ -22,12 +22,12 @@ export const BillboardClient: React.FC<BillboardClientProps> = ({ data }) => {
         <>
             <div className="flex items-center justify-between">
                 <Heading
-                    title={`Billboards (${data.length})`}
-                    description="Manage billboards for your store"
+                    title={`Colors (${data.length})`}
+                    description="Manage colors for your store"
                 />
                 <Button
                     onClick={() => {
-                        router.push(`/${params.storeId}/billboards/new`);
+                        router.push(`/${params.storeId}/colors/new`);
                     }}
                 >
                     <Plus className="mr-2 w-4 h-4" />
@@ -38,16 +38,16 @@ export const BillboardClient: React.FC<BillboardClientProps> = ({ data }) => {
             <DataTable
                 columns={columns}
                 data={data}
-                searchKey="label"
+                searchKey="name"
             />
             <Heading 
                 title="API"
-                description="Use the following API to interact with billboards"
+                description="Use the following API to interact with colors"
             />
             <Separator />
             <ApiList 
-                entityName="billboards"
-                entityIdName="billboardId"
+                entityName="colors"
+                entityIdName="colorId"
             />
         </>
     );
