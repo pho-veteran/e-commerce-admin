@@ -202,7 +202,7 @@ const ProductForm: React.FC<ProductFormProps> = ({
                         }}
                     />
 
-                    <div className="grid grid-cols-3 gap-8">
+                    <div className="grid md:grid-cols-3 grid-cols-1 gap-8">
                         <FormField
                             control={form.control}
                             name="name"
@@ -365,7 +365,7 @@ const ProductForm: React.FC<ProductFormProps> = ({
                                             onCheckedChange={field.onChange}
                                         />
                                     </FormControl>
-                                    <div className="space-y-1 leading-none mt-0">
+                                    <div className="space-y-1 leading-none mb-8">
                                         <FormLabel className="font-semibold">
                                             Featured
                                         </FormLabel>
@@ -381,14 +381,14 @@ const ProductForm: React.FC<ProductFormProps> = ({
                             control={form.control}
                             name="isArchived"
                             render={({ field }) => (
-                                <FormItem className="flex flex-row items-center gap-x-4 gap-y-3 rounded-md border p-4">
+                                <FormItem className="flex items-center gap-x-4 gap-y-3 rounded-md border p-4">
                                     <FormControl>
                                         <Checkbox
                                             checked={field.value}
                                             onCheckedChange={field.onChange}
                                         />
                                     </FormControl>
-                                    <div className="space-y-1 leading-none mt-0">
+                                    <div className="space-y-1 leading-none mb-8">
                                         <FormLabel className="font-semibold">
                                             Archived
                                         </FormLabel>

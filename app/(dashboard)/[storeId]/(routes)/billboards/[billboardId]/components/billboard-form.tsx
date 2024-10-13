@@ -162,7 +162,7 @@ const BillboardForm: React.FC<BillboardFormProps> = ({ initialData }) => {
                         }}
                     />
 
-                    <div className="grid grid-cols-3 gap-8">
+                    <div className="">
                         <FormField
                             control={form.control}
                             name="label"
@@ -172,6 +172,7 @@ const BillboardForm: React.FC<BillboardFormProps> = ({ initialData }) => {
                                     <FormControl>
                                         <Input
                                             {...field}
+                                            className="max-w-[300px]"
                                             disabled={loading}
                                             placeholder="Billboard Label"
                                         />
