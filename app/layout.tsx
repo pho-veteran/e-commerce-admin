@@ -5,6 +5,7 @@ import "./globals.css";
 
 import { ModalProvider } from "@/providers/modal-provider";
 import { ToastProvider } from "@/providers/toast-provider";
+import { ThemeProvider } from "@/providers/theme-provider";
 
 const geistSans = localFont({
     src: "./fonts/GeistVF.woff",
@@ -34,10 +35,17 @@ export default function RootLayout({
                 className={`${geistSans.variable} ${geistMono.variable} antialiased`}
             >
                 <body>
-                    <ToastProvider />
-                    <ModalProvider />
+                    <ThemeProvider
+                        attribute="class"
+                        defaultTheme="light"
+                        enableSystem
+                        // disableTransitionOnChange
+                    >
+                        <ToastProvider />
+                        <ModalProvider />
 
-                    {children}
+                        {children}
+                    </ThemeProvider>
                 </body>
             </html>
         </ClerkProvider>
