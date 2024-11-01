@@ -53,6 +53,9 @@ export async function GET(
     { params }: { params: { storeId: string } }
 ) {
     try {
+        const { searchParams } = new URL(req.url);
+        const name = searchParams.get("name") || undefined;
+
         if (!params.storeId) {
             return new NextResponse("Invalid Request", { status: 400 });
         }
@@ -60,6 +63,13 @@ export async function GET(
         const categories = await prisma.category.findMany({
             where: {
                 storeId: params.storeId,
+                name: {
+                    contains: name,
+                    mode: "insensitive",
+                },
+            },
+            include: {
+                billboard: true,
             },
         });
 

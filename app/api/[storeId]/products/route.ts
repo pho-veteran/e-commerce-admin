@@ -91,7 +91,7 @@ export async function GET(
         const colorId = searchParams.get("colorId") || undefined;
         const sizeId = searchParams.get("sizeId") || undefined;
         const isFeatured = searchParams.get("isFeatured");
-
+        const name = searchParams.get("name") || undefined;
 
         if (!params.storeId) {
             return new NextResponse("Invalid Request", { status: 400 });
@@ -105,6 +105,10 @@ export async function GET(
                 sizeId,
                 isFeatured: isFeatured ? true : undefined,
                 isArchived: false,
+                name: {
+                    contains: name,
+                    mode: "insensitive",
+                }
             },
             include: {
                 images: true,
