@@ -3,7 +3,9 @@ import { redirect } from "next/navigation";
 import { ObjectId } from "mongodb";
 
 import { prisma } from "@/lib/prismadb";
-import Navbar from "@/components/navbar";
+import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar"
+import { AppSidebar } from "@/components/app-sidebar"
+import NavBreadcrumb from "@/components/nav-breadcrumb";
 
 export default async function DashboardLayout({
     children,
@@ -23,11 +25,11 @@ export default async function DashboardLayout({
     const store = !ObjectId.isValid(params.storeId)
         ? null
         : await prisma.store.findFirst({
-              where: {
-                  id: params.storeId,
-                  userId,
-              },
-          });
+            where: {
+                id: params.storeId,
+                userId,
+            },
+        });
 
     if (!store) {
         redirect("/");
@@ -35,8 +37,15 @@ export default async function DashboardLayout({
 
     return (
         <>
-            <Navbar />
-            {children}
+            <SidebarProvider>
+                <AppSidebar />
+                <SidebarInset>
+                    <main className="w-full">
+                        <NavBreadcrumb />
+                        {children}
+                    </main>
+                </SidebarInset>
+            </SidebarProvider>
         </>
     );
 }

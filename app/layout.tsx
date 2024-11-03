@@ -39,11 +39,9 @@ export default function RootLayout({
                         attribute="class"
                         defaultTheme="light"
                         enableSystem
-                        // disableTransitionOnChange
                     >
                         <ToastProvider />
                         <ModalProvider />
-
                         {children}
                     </ThemeProvider>
                 </body>

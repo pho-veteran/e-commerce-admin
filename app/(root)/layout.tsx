@@ -2,6 +2,7 @@ import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 
 import { prisma } from "@/lib/prismadb";
+import { SidebarTrigger } from "@/components/ui/sidebar";
 
 export default async function SetupLayout({
     children,
