@@ -9,15 +9,14 @@ export async function POST(
 ) {
     try {
         const { userId }: { userId: string | null } = auth();
-
         const body = await req.json();
 
         const {
             name,
             price,
             categoryId,
-            colorId,
-            sizeId,
+            productSizes,
+            productColors,
             images,
             isFeatured,
             isArchived,
@@ -31,9 +30,8 @@ export async function POST(
             !name ||
             !price ||
             !categoryId ||
-            !colorId ||
-            !sizeId ||
-            !price ||
+            !productColors ||
+            !productSizes ||
             !params.storeId
         ) {
             return new NextResponse("Invalid Request", { status: 400 });
@@ -59,16 +57,28 @@ export async function POST(
                 name,
                 price,
                 categoryId,
-                colorId,
-                sizeId,
+                productColors: {
+                    createMany: {
+                        data: productColors.map((colorId: string) => ({
+                            colorId,
+                        })),
+                    },
+                },
+                productSizes: {
+                    createMany: {
+                        data: productSizes.map((sizeId: string) => ({
+                            sizeId,
+                        })),
+                    },
+                },
                 isFeatured,
                 isArchived,
                 storeId: params.storeId,
                 images: {
                     createMany: {
-                        data: [
-                            ...images.map((image: { url: string }) => image),
-                        ],
+                        data: images.map((image: { url: string }) => ({
+                            url: image.url,
+                        })),
                     },
                 },
             },
@@ -101,20 +111,36 @@ export async function GET(
             where: {
                 storeId: params.storeId,
                 categoryId,
-                colorId,
-                sizeId,
                 isFeatured: isFeatured ? true : undefined,
                 isArchived: false,
                 name: {
                     contains: name,
                     mode: "insensitive",
-                }
+                },
+                productColors: {
+                    some: {
+                        colorId: colorId, 
+                    },
+                },
+                productSizes: {
+                    some: {
+                        sizeId: sizeId, 
+                    },
+                },
             },
             include: {
                 images: true,
                 category: true,
-                color: true,
-                size: true,
+                productColors: {
+                    include: {
+                        color: true, 
+                    },
+                },
+                productSizes: {
+                    include: {
+                        size: true,
+                    },
+                },
             },
             orderBy: {
                 createdAt: "desc",

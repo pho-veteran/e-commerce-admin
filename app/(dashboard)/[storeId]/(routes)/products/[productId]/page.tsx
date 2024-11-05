@@ -13,13 +13,23 @@ const ProductPage = async ({
     const product = !ObjectId.isValid(params.productId)
         ? null
         : await prisma.product.findUnique({
-              where: {
-                  id: params.productId,
-              },
-              include: {
-                  images: true,
-              },
-          });
+            where: {
+                id: params.productId,
+            },
+            include: {
+                images: true,
+                productColors: true,
+                productSizes: true,
+            },
+        });
+
+    const formattedProduct = product
+        ? {
+            ...product,
+            productSizes: product.productSizes.map((productSize) => productSize.sizeId),
+            productColors: product.productColors.map((productColor) => productColor.colorId),
+        }
+        : null;
 
     const categories = await prisma.category.findMany({
         where: {
@@ -46,7 +56,7 @@ const ProductPage = async ({
                     categories={categories}
                     sizes={sizes}
                     colors={colors}
-                    initialData={product}
+                    initialData={formattedProduct}
                 />
             </div>
         </div>

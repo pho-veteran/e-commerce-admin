@@ -6,7 +6,7 @@ import toast from "react-hot-toast";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { Trash } from "lucide-react";
-import { Product, Image, Category, Size, Color } from "@prisma/client";
+import { Product, Image, Category, Size, Color, ProductSize, ProductColor } from "@prisma/client";
 import { useState } from "react";
 import { useRouter, useParams } from "next/navigation";
 
@@ -33,21 +33,29 @@ import { Input } from "@/components/ui/input";
 import { ConfirmModal } from "@/components/modals/confirm-modal";
 import ImageUpload from "@/components/ui/image-upload";
 import { Checkbox } from "@/components/ui/checkbox";
+import { MultiSelect } from "@/components/ui/multi-select";
 
 interface ProductFormProps {
     categories: Category[];
     sizes: Size[];
     colors: Color[];
-    initialData: (Product & { images: Image[] }) | null;
+    initialData:
+    (
+        Product &
+        { images: Image[] } &
+        { productSizes: string[] } &
+        { productColors: string[] }
+    )
+    | null;
 }
 
 const formSchema = z.object({
     name: z.string().min(3),
-    images: z.object({ url: z.string() }).array(),
+    images: z.object({ url: z.string() }).array().min(1),
     price: z.coerce.number().min(1),
     categoryId: z.string(),
-    colorId: z.string().min(1),
-    sizeId: z.string().min(1),
+    productColors: z.string().array().min(1),
+    productSizes: z.string().array().min(1),
     isFeatured: z.boolean().default(false).optional(),
     isArchived: z.boolean().default(false).optional(),
 });
@@ -79,20 +87,47 @@ const ProductForm: React.FC<ProductFormProps> = ({
         resolver: zodResolver(formSchema),
         defaultValues: initialData
             ? {
-                  ...initialData,
-                  price: parseFloat(String(initialData?.price)),
-              }
+                ...initialData,
+                price: parseFloat(String(initialData?.price)),
+            }
             : {
-                  name: "",
-                  images: [],
-                  price: 0,
-                  categoryId: "",
-                  colorId: "",
-                  sizeId: "",
-                  isFeatured: false,
-                  isArchived: false,
-              },
+                name: "",
+                images: [],
+                price: 0,
+                categoryId: "",
+                productColors: [],
+                productSizes: [],
+                isFeatured: false,
+                isArchived: false,
+            },
     });
+
+    const formattedSizes = sizes.map((size) => (
+        {
+            label: size.name,
+            value: size.id,
+            icon: () => (
+                <span
+                    className="block p-1 font-semibold text-sm"
+                >{size.value}</span>
+            )
+        }
+    ))
+
+    const formattedColors = colors.map((color) => (
+        {
+            label: color.name,
+            value: color.id,
+            icon: () => (
+                <div className="p-1">
+                    <div
+                        className={"h-5 w-5 rounded-full border"}
+                        style={{ backgroundColor: color.value }}
+                    />
+                </div>
+            )
+        }
+    ))
 
     const onSubmit = async (data: ProductFormValues) => {
         try {
@@ -122,7 +157,7 @@ const ProductForm: React.FC<ProductFormProps> = ({
         try {
             setLoading(true);
             await axios.delete(
-                `/api/${params.storeId}/products/${params.billboardId}`
+                `/api/${params.storeId}/products/${params.productId}`
             );
 
             router.push(`/${params.storeId}/products`);
@@ -275,81 +310,40 @@ const ProductForm: React.FC<ProductFormProps> = ({
                         />
                         <FormField
                             control={form.control}
-                            name="sizeId"
+                            name="productSizes"
                             render={({ field }) => (
                                 <FormItem>
                                     <FormLabel>Size</FormLabel>
-                                    <Select
-                                        disabled={loading}
-                                        onValueChange={field.onChange}
+                                    <MultiSelect
+                                        options={formattedSizes}
                                         value={field.value}
+                                        onValueChange={field.onChange}
                                         defaultValue={field.value}
-                                    >
-                                        <FormControl>
-                                            <SelectTrigger>
-                                                <SelectValue
-                                                    defaultValue={field.value}
-                                                    placeholder="Select a size"
-                                                />
-                                            </SelectTrigger>
-                                        </FormControl>
-                                        <SelectContent>
-                                            {sizes.map((size) => (
-                                                <SelectItem
-                                                    key={size.id}
-                                                    value={size.id}
-                                                >
-                                                    {size.name}
-                                                </SelectItem>
-                                            ))}
-                                        </SelectContent>
-                                    </Select>
+                                        placeholder="Select sizes"
+                                        animation={2}
+                                        maxCount={3}
+                                        variant={"inverted"}
+                                    />
                                     <FormMessage />
                                 </FormItem>
                             )}
                         />
                         <FormField
                             control={form.control}
-                            name="colorId"
+                            name="productColors"
                             render={({ field }) => (
                                 <FormItem>
-                                    <FormLabel>Color</FormLabel>
-                                    <Select
-                                        disabled={loading}
-                                        onValueChange={field.onChange}
+                                    <FormLabel>Product Colors</FormLabel>
+                                    <MultiSelect
+                                        options={formattedColors}
                                         value={field.value}
+                                        onValueChange={field.onChange}
                                         defaultValue={field.value}
-                                    >
-                                        <FormControl>
-                                            <SelectTrigger>
-                                                <SelectValue
-                                                    defaultValue={field.value}
-                                                    placeholder="Select a color"
-                                                />
-                                            </SelectTrigger>
-                                        </FormControl>
-                                        <SelectContent>
-                                            {colors.map((color) => (
-                                                <SelectItem
-                                                    key={color.id}
-                                                    value={color.id}
-                                                >
-                                                    <div className="flex gap-x-4 items-center">
-                                                        <span>
-                                                            {color.name}
-                                                        </span>
-                                                        <div
-                                                            className="border p-3 rounded-full"
-                                                            style={{
-                                                                backgroundColor:
-                                                                    color.value,
-                                                            }}
-                                                        ></div>
-                                                    </div>
-                                                </SelectItem>
-                                            ))}
-                                        </SelectContent>
-                                    </Select>
+                                        placeholder="Select colors"
+                                        animation={2}
+                                        maxCount={3}
+                                        variant={"inverted"}
+                                    />
                                     <FormMessage />
                                 </FormItem>
                             )}

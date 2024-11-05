@@ -10,6 +10,7 @@ import {
 import { Separator } from "./ui/separator";
 import { SidebarTrigger } from "./ui/sidebar";
 import { UserButton } from "@clerk/nextjs";
+import { ThemeToggle } from "./theme-toggle";
 
 const NavBreadcrumb = () => {
   const pathName = usePathname();
@@ -19,7 +20,7 @@ const NavBreadcrumb = () => {
     .replace(/\b\w/g, (l) => l.toUpperCase());
 
   return (
-    <div className="flex items-center px-4 h-12 gap-x-4 py-4">
+    <div className="flex items-center px-4 h-16 gap-x-4 py-4">
       <SidebarTrigger size="icon" />
       <Separator orientation="vertical" />
       <Breadcrumb className=" ">
@@ -36,7 +37,10 @@ const NavBreadcrumb = () => {
         </BreadcrumbList>
       </Breadcrumb>
       <div className="ml-auto flex gap-x-4">
-        <UserButton showName={true} />
+        <div className="dark:bg-white rounded-lg flex justify-center items-center p-1">
+          <UserButton showName={true} />
+        </div>
+        <ThemeToggle />
       </div>
     </div>
   );

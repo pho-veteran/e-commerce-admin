@@ -19,8 +19,8 @@ const ProductsPage = async ({
         },
         include: {
             category: true,
-            size: true,
-            color: true,
+            productColors: true,
+            productSizes: true,
         },
         orderBy: {
             createdAt: "desc",
@@ -35,8 +35,8 @@ const ProductsPage = async ({
             isArchived: product.isArchived,
             price: currencyFormatter.format(product.price),
             category: product.category.name,
-            size: product.size.name,
-            color: product.color.value,
+            productSizes: product.productSizes.length,
+            productColors: product.productColors.length,
             createdAt: format(product.createdAt, "MMMM do, yyyy"),
         };
     });

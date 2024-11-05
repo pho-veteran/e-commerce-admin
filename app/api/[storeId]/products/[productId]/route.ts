@@ -19,10 +19,22 @@ export async function GET(
             include: {
                 images: true,
                 category: true,
-                size: true,
-                color: true,
-            }
+                productColors: {
+                    include: {
+                        color: true, 
+                    },
+                },
+                productSizes: {
+                    include: {
+                        size: true,
+                    },
+                },
+            },
         });
+
+        if (!product) {
+            return new NextResponse("Product Not Found", { status: 404 });
+        }
 
         return NextResponse.json(product);
     } catch (error) {
@@ -43,8 +55,8 @@ export async function PATCH(
             name,
             price,
             categoryId,
-            colorId,
-            sizeId,
+            productColors,
+            productSizes,
             images,
             isFeatured,
             isArchived,
@@ -58,9 +70,8 @@ export async function PATCH(
             !name ||
             !price ||
             !categoryId ||
-            !colorId ||
-            !sizeId ||
-            !price ||
+            !productColors ||
+            !productSizes ||
             !params.storeId
         ) {
             return new NextResponse("Invalid Request", { status: 400 });
@@ -89,11 +100,15 @@ export async function PATCH(
                 name,
                 price,
                 categoryId,
-                colorId,
-                sizeId,
                 isFeatured,
                 isArchived,
                 storeId: params.storeId,
+                productColors: {
+                    deleteMany: {},
+                },
+                productSizes: {
+                    deleteMany: {},
+                },
                 images: {
                     deleteMany: {},
                 },
@@ -105,15 +120,29 @@ export async function PATCH(
                 id: params.productId,
             },
             data: {
-                images: {
+                productColors: {
                     createMany: {
-                        data: [
-                            ...images.map((image: { url: string }) => image),
-                        ],
+                        data: productColors.map((colorId: string) => ({
+                            colorId,
+                        })),
                     },
                 },
-            }
-        })
+                productSizes: {
+                    createMany: {
+                        data: productSizes.map((sizeId: string) => ({
+                            sizeId,
+                        })),
+                    },
+                },
+                images: {
+                    createMany: {
+                        data: images.map((image: { url: string }) => ({
+                            url: image.url,
+                        })),
+                    },
+                },
+            },
+        });
 
         return NextResponse.json(product);
     } catch (error) {
