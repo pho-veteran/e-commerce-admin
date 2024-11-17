@@ -102,6 +102,7 @@ export async function GET(
         const sizeId = searchParams.get("sizeId") || undefined;
         const isFeatured = searchParams.get("isFeatured");
         const name = searchParams.get("name") || undefined;
+        const ids = searchParams.get("ids")?.split(",") || undefined;
 
         if (!params.storeId) {
             return new NextResponse("Invalid Request", { status: 400 });
@@ -127,6 +128,7 @@ export async function GET(
                         sizeId: sizeId, 
                     },
                 },
+                id: ids ? { in: ids } : undefined,
             },
             include: {
                 images: true,

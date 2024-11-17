@@ -313,7 +313,7 @@ const ProductForm: React.FC<ProductFormProps> = ({
                             name="productSizes"
                             render={({ field }) => (
                                 <FormItem>
-                                    <FormLabel>Size</FormLabel>
+                                    <FormLabel>Product Sizes</FormLabel>
                                     <MultiSelect
                                         options={formattedSizes}
                                         value={field.value}

@@ -32,6 +32,9 @@ interface SettingFormProps {
 
 const formSchema = z.object({
     name: z.string().min(3),
+    frontendUrl: z.string().url(),
+    vnpay_tmn: z.string(),
+    vnpay_hashSecret: z.string(),
 });
 
 type SettingFormValues = z.infer<typeof formSchema>;
@@ -106,7 +109,7 @@ const SettingForm: React.FC<SettingFormProps> = ({ initialData }) => {
                     onSubmit={form.handleSubmit(onSubmit)}
                     className="space-y-8 w-full"
                 >
-                    <div className="grid grid-cols-3 gap-8">
+                    <div className="grid sm:grid-cols-2 gap-8">
                         <FormField
                             control={form.control}
                             name="name"
@@ -124,6 +127,67 @@ const SettingForm: React.FC<SettingFormProps> = ({ initialData }) => {
                                 </FormItem>
                             )}
                         />
+                        <FormField
+                            control={form.control}
+                            name="frontendUrl"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Your Store URL</FormLabel>
+                                    <FormControl>
+                                        <Input
+                                            disabled={loading}
+                                            placeholder="Your store frontend url..."
+                                            {...field}
+                                        />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                        <div className="relative sm:col-span-2 pt-8 pb-4 px-4 border grid sm:grid-cols-2 gap-8 rounded-md mt-2">
+                            <div className="absolute top-[-16px] left-[12px] flex items-center gap-x-2 bg-background text-sm px-1">
+                                <img
+                                    className="h-8"
+                                    src="/payment-method-imgs/vnpay.png"
+                                    alt="VNPay"
+                                />
+                                <span>VNPay Payments Settings</span>
+                            </div>
+                            <FormField
+                                control={form.control}
+                                name="vnpay_tmn"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>VNPay TMN Code</FormLabel>
+                                        <FormControl>
+                                            <Input
+                                                disabled={loading}
+                                                placeholder="VNPay TMN..."
+                                                {...field}
+                                            />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                            <FormField
+                                control={form.control}
+                                name="vnpay_hashSecret"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>VNPay Hash Secret</FormLabel>
+                                        <FormControl>
+                                            <Input
+                                                disabled={loading}
+                                                placeholder="VNPay Hash Secret"
+                                                {...field}
+                                            />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                        </div>
                     </div>
                     <Button
                         disabled={loading}

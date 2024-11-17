@@ -23,6 +23,9 @@ model Store {
   colors    Color[] @relation("StoreToColor")
   products  Product[] @relation("StoreToProduct")
   orders    Order[] @relation("StoreToOrder")
+  vnpay_tmn String @default("")
+  vnpay_hashSecret String @default("")
+  frontendUrl String @default("")
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
@@ -55,6 +58,7 @@ model Size {
   storeId   String   @db.ObjectId
   store     Store    @relation("StoreToSize", fields: [storeId], references: [id])
   productSizes ProductSize[] @relation
+  orderItems    OrderItem[] @relation
   name      String
   value     String
   createdAt DateTime @default(now())
@@ -66,6 +70,7 @@ model Color {
   storeId   String   @db.ObjectId
   store     Store    @relation("StoreToColor", fields: [storeId], references: [id])
   productColors ProductColor[] @relation
+  orderItems    OrderItem[] @relation
   name      String
   value     String
   createdAt DateTime @default(now())
@@ -115,14 +120,29 @@ model Image {
   updatedAt DateTime @updatedAt
 }
 
+enum AddressType {
+  HOME
+  WORK
+}
+
+enum PaymentMethod {
+  COD
+  ONLINE
+}
+
 model Order {
   id          String @id @default(auto()) @map("_id") @db.ObjectId
   storeId     String  @db.ObjectId
   store       Store @relation("StoreToOrder", fields: [storeId], references: [id])
   orderItems  OrderItem[]
-  isPaid      Boolean @default(false)
+  orderMessage String @default("")
+  name        String @default("")
   phone       String @default("")
   address     String @default("")
+  addressType AddressType @default(HOME)
+  totalPrice  Float
+  paymentMethod PaymentMethod @default(COD)
+  isPaid      Boolean @default(false)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }
@@ -133,4 +153,9 @@ model OrderItem {
   order     Order @relation(fields: [orderId], references: [id])
   productId String @db.ObjectId
   product   Product @relation(fields: [productId], references: [id])
+  color     Color @relation(fields: [colorId], references: [id])
+  colorId   String  @db.ObjectId
+  size      Size  @relation(fields: [sizeId], references: [id])
+  sizeId    String  @db.ObjectId
+  quantity  Int
 }
