@@ -49,7 +49,10 @@ export async function GET(
                         quantity: true,
                     },
                 }
-            }
+            },
+            orderBy: {
+                updatedAt: "desc",
+            },
         });
 
         return NextResponse.json(orders);
