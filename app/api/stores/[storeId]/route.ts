@@ -11,7 +11,12 @@ export async function PATCH (
         const { userId }: { userId: string | null } = auth();
         const body = await req.json();
 
-        const { name } = body;
+        const { 
+            name,
+            frontendUrl,
+            vnpay_tmn,
+            vnpay_hashSecret, 
+        } = body;
 
         if (!userId) {
             return new NextResponse("Unauthorized", { status: 401 });
@@ -31,6 +36,9 @@ export async function PATCH (
             },
             data: {
                 name,
+                frontendUrl,
+                vnpay_tmn,
+                vnpay_hashSecret,
             },
         });
 
