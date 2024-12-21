@@ -6,7 +6,7 @@ import toast from "react-hot-toast";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { Trash } from "lucide-react";
-import { Product, Image, Category, Size, Color, ProductSize, ProductColor } from "@prisma/client";
+import { Product, Image, Category, Size, Color } from "@prisma/client";
 import { useState } from "react";
 import { useRouter, useParams } from "next/navigation";
 
@@ -148,6 +148,7 @@ const ProductForm: React.FC<ProductFormProps> = ({
             toast.success(toastMessage);
         } catch (error) {
             toast.error("Something went wrong.");
+            console.error(error);
         } finally {
             setLoading(false);
         }
@@ -166,6 +167,7 @@ const ProductForm: React.FC<ProductFormProps> = ({
             toast.success("Product deleted successfully");
         } catch (error) {
             toast.error("Something went wrong.");
+            console.error(error);
         } finally {
             setLoading(false);
         }

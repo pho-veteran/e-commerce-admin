@@ -90,18 +90,15 @@ export async function PATCH(
             return new NextResponse("Unauthorized", { status: 403 });
         }
 
-        const updateData: any = { orderStatus };
-
-        if (orderStatus === "NOTPAID") {
-            updateData.paymentMethod = "ONLINE";
-        }
-
         const order = await prisma.order.update({
             where: {
                 storeId: params.storeId,
                 id: params.orderId,
             },
-            data: updateData,
+            data: {
+                orderStatus: orderStatus,
+                paymentMethod: orderStatus === "NOTPAID" ? "ONLINE" : undefined,
+            },
         });
 
         return NextResponse.json(order, { headers: corsHeaders });

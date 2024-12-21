@@ -1,6 +1,6 @@
 "use client"
 
-import * as React from "react"
+import { useState, useEffect } from "react"
 import { Check, ChevronsUpDown } from "lucide-react"
 
 import { cn } from "@/lib/utils"
@@ -57,10 +57,10 @@ export const OrderStatusCombobox: React.FC<OrderStatusComboboxProps> = ({
   initialValue,
   loading
 }) => {
-  const [open, setOpen] = React.useState(false)
-  const [value, setValue] = React.useState(initialValue || "")
+  const [open, setOpen] = useState(false)
+  const [value, setValue] = useState(initialValue || "")
 
-  React.useEffect(() => {
+  useEffect(() => {
     onChange(value)
   }, [value])
 

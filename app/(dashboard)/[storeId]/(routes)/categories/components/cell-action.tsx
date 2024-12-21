@@ -45,6 +45,7 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
             toast.error(
                 "Make sure to delete all categories using this category"
             );
+            console.error(error);
         } finally {
             setLoading(false);
         }

@@ -10,6 +10,7 @@ import { Store } from "@prisma/client";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
+import Image from "next/image";
 import Heading from "@/components/ui/heading";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
@@ -58,6 +59,7 @@ const SettingForm: React.FC<SettingFormProps> = ({ initialData }) => {
             toast.success("Store settings updated successfully");
         } catch (error) {
             toast.error("Failed to update store settings");
+            console.error(error);
         } finally {
             setLoading(false);
         }
@@ -72,6 +74,7 @@ const SettingForm: React.FC<SettingFormProps> = ({ initialData }) => {
             toast.success("Store deleted successfully");
         } catch (error) {
             toast.error("Make sure to delete all products before deleting the store");
+            console.error(error);
         } finally {
             setLoading(false);
         }
@@ -146,10 +149,11 @@ const SettingForm: React.FC<SettingFormProps> = ({ initialData }) => {
                         />
                         <div className="relative sm:col-span-2 pt-8 pb-4 px-4 border grid sm:grid-cols-2 gap-8 rounded-md mt-2">
                             <div className="absolute top-[-16px] left-[12px] flex items-center gap-x-2 bg-background text-sm px-1">
-                                <img
-                                    className="h-8"
+                                <Image
                                     src="/payment-method-imgs/vnpay.png"
                                     alt="VNPay"
+                                    width={32}
+                                    height={32}
                                 />
                                 <span>VNPay Payments Settings</span>
                             </div>

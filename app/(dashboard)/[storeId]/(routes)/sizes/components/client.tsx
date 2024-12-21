@@ -2,7 +2,6 @@
 
 import { Plus } from "lucide-react";
 import { useRouter, useParams } from "next/navigation";
-import { Billboard } from "@prisma/client";
 
 import { Button } from "@/components/ui/button";
 import Heading from "@/components/ui/heading";

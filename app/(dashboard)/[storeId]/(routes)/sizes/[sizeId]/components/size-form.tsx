@@ -24,7 +24,6 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { ConfirmModal } from "@/components/modals/confirm-modal";
-import ImageUpload from "@/components/ui/image-upload";
 
 interface SizeFormProps {
     initialData: Size | null;
@@ -80,6 +79,7 @@ const SizeForm: React.FC<SizeFormProps> = ({ initialData }) => {
             toast.success(toastMessage);
         } catch (error) {
             toast.error("Something went wrong.");
+            console.error(error);
         } finally {
             setLoading(false);
         }
@@ -98,6 +98,7 @@ const SizeForm: React.FC<SizeFormProps> = ({ initialData }) => {
             toast.error(
                 "Make sure to delete all products using this size"
             );
+            console.error(error);
         } finally {
             setLoading(false);
         }

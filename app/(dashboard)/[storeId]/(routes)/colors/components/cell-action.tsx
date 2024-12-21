@@ -45,6 +45,7 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
             toast.error(
                 "Make sure to delete all products using this color"
             );
+            console.error(error);
         } finally {
             setLoading(false);
         }
