@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
-import { dateFormat, VnpLocale } from "vnpay";
-import { getVNPayModel } from "@/model";
 import { prisma } from "@/lib/prismadb";
+import { getVNPayModel } from "@/model";
+import { dateFormat, VnpLocale } from "vnpay";
 
 const corsHeaders = {
     "Access-Control-Allow-Origin": "*",
@@ -15,11 +15,14 @@ export async function OPTIONS() {
 
 export async function POST(
     req: Request,
-    { params }: { params: { storeId: string } }
+    { params }: { params: { storeId: string; orderId: string } }
 ) {
     try {
         if (!params.storeId) {
-            return new NextResponse("Invalid Request", { status: 400, headers: corsHeaders });
+            return new NextResponse("Invalid Request", {
+                status: 400,
+                headers: corsHeaders,
+            });
         }
         const store = await prisma.store.findFirst({
             where: {
@@ -27,29 +30,27 @@ export async function POST(
             },
         });
         if (!store) {
-            return new NextResponse("Store not found", { status: 404, headers: corsHeaders });
+            return new NextResponse("Store not found", {
+                status: 404,
+                headers: corsHeaders,
+            });
         }
 
         const payload = await req.json();
 
-        const order = await prisma.order.create({
-            data: {
-                storeId: params.storeId,
-                orderItems: {
-                    create: payload.orderItems,
-                },
-                orderMessage: payload.orderMessage,
-                customerId: payload.customerId,
-                name: payload.address.name,
-                phone: payload.address.phone,
-                address:
-                    payload.address.streetAddress +
-                    ", " +
-                    payload.address.generalAddress,
-                paymentMethod: payload.paymentMethod === "COD" ? "COD" : "ONLINE",
-                shippingFee: payload.shippingFee,
-                orderStatus: payload.paymentMethod === "COD" ? "PENDING" : "NOTPAID",
-                addressType: payload.addressType,
+        const { orderId, clientIp, paymentMethod, customerId } = payload;
+
+        if (!orderId || !clientIp) {
+            return new NextResponse("Invalid Request", {
+                status: 400,
+                headers: corsHeaders,
+            });
+        }
+
+        const order = await prisma.order.findFirst({
+            where: {
+                id: orderId,
+                customerId: customerId,
             },
             include: {
                 orderItems: {
@@ -70,9 +71,35 @@ export async function POST(
                         size: true,
                         quantity: true,
                     },
-                }
-            }
+                },
+            },
         });
+
+        if (!order) {
+            return new NextResponse("Order not found", {
+                status: 404,
+                headers: corsHeaders,
+            });
+        }
+
+        if (paymentMethod === "COD") {
+            await prisma.order.update({
+                where: {
+                    id: orderId,
+                },
+                data: {
+                    orderStatus: "PENDING",
+                    paymentMethod: "COD",
+                },
+            });
+
+            return NextResponse.json(
+                {
+                    url: `${store.frontendUrl}/checkout/result?cod=1&orderId=${order.id}`,
+                },
+                { headers: corsHeaders }
+            );
+        }
 
         const totalPrice =
             order.orderItems.reduce(
@@ -80,13 +107,14 @@ export async function POST(
                 0
             ) + order.shippingFee;
 
-        if (payload.paymentMethod === "COD") {
-            return NextResponse.json(
-                {
-                    url: `${store.frontendUrl}/checkout/result?cod=1&orderId=${order.id}`,
-                },
-                { headers: corsHeaders }
-            );
+        if (
+            order.orderStatus !== "NOTPAID" &&
+            order.paymentMethod !== "ONLINE"
+        ) {
+            return new NextResponse("Order already paid", {
+                status: 400,
+                headers: corsHeaders,
+            });
         }
 
         const vnpay = await getVNPayModel(
@@ -96,14 +124,12 @@ export async function POST(
 
         const url = vnpay.buildPaymentUrl({
             vnp_Amount: totalPrice,
-            vnp_IpAddr: payload.clientIp,
+            vnp_IpAddr: clientIp,
             vnp_OrderInfo: `Order ${order.id}`,
             vnp_ReturnUrl: `${store.frontendUrl}/checkout/result`,
             vnp_TxnRef: order.id,
             vnp_BankCode:
-                payload.paymentMethod === "VNPAYEWALLET"
-                    ? "VNPAYEWALLET"
-                    : undefined,
+                paymentMethod === "VNPAYEWALLET" ? "VNPAYEWALLET" : undefined,
             vnp_Locale: VnpLocale.EN,
             vnp_CreateDate: dateFormat(new Date()),
         });
@@ -111,6 +137,9 @@ export async function POST(
         return NextResponse.json({ url: url }, { headers: corsHeaders });
     } catch (error) {
         console.error("[POST /api/checkout]", error);
-        return new NextResponse("Internal Server Error", { status: 500, headers: corsHeaders });
+        return new NextResponse("Internal Server Error", {
+            status: 500,
+            headers: corsHeaders,
+        });
     }
 }

@@ -17,35 +17,37 @@ const OrdersPage = async ({
         where: {
             storeId: params.storeId,
         },
+        orderBy: {
+            updatedAt: "desc",
+        },
         include: {
             orderItems: {
-                include: {
-                    product: true,
+                select: {
+                    product: {
+                        select: {
+                            price: true,
+                        },
+                    },
+                    quantity: true,
                 },
             },
-        },
-        orderBy: {
-            createdAt: "desc",
-        },
+        }
     });
 
     const formattedOrders: OrderColumn[] = orders.map((order) => {
         return {
             id: order.id,
+            name: order.name,
             phone: order.phone,
-            address: order.address,
-            products: order.orderItems
-                .map((orderItem) => {
-                    orderItem.product.name;
-                })
-                .join(", "),
             totalPrice: currencyFormatter.format(
-                order.orderItems.reduce((acc, item) => {
-                    return acc + Number(item.product.price);
-                }, 0)
+                order.orderItems.reduce(
+                    (acc, item) => acc + item.product.price * item.quantity,
+                    0
+                )
             ),
-            isPaid: order.isPaid,
-            createdAt: format(order.createdAt, "MMMM do, yyyy"),
+            paymentMethod: order.paymentMethod,
+            orderStatus: order.orderStatus, 
+            updatedAt: format(order.updatedAt, "MMMM do, yyyy"),
         };
     });
 

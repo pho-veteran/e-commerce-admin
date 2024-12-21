@@ -130,19 +130,29 @@ enum PaymentMethod {
   ONLINE
 }
 
+enum orderStatus {
+  PENDING
+  CONFIRMED
+  SHIPPING
+  DELIVERED
+  CANCELLED
+  NOTPAID
+}
+
 model Order {
   id          String @id @default(auto()) @map("_id") @db.ObjectId
   storeId     String  @db.ObjectId
   store       Store @relation("StoreToOrder", fields: [storeId], references: [id])
+  customerId  String
   orderItems  OrderItem[]
   orderMessage String @default("")
   name        String @default("")
   phone       String @default("")
   address     String @default("")
   addressType AddressType @default(HOME)
-  totalPrice  Float
+  shippingFee Float
   paymentMethod PaymentMethod @default(COD)
-  isPaid      Boolean @default(false)
+  orderStatus orderStatus @default(PENDING)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }

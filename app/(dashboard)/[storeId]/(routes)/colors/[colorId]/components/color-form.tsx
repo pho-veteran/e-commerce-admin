@@ -24,6 +24,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { ConfirmModal } from "@/components/modals/confirm-modal";
+import { ColorPicker } from "@/components/ui/color-picker";
 
 interface ColorFormProps {
     initialData: Color | null;
@@ -161,18 +162,11 @@ const ColorForm: React.FC<ColorFormProps> = ({ initialData }) => {
                                     <FormLabel>Color Value</FormLabel>
                                     <FormControl>
                                         <div className="flex items-center gap-x-4">
-                                            <Input
-                                                {...field}
-                                                disabled={loading}
-                                                placeholder="Color Value"
+                                            <ColorPicker 
+                                                onChange={field.onChange}
+                                                color={field.value}
+                                                loading={loading}
                                             />
-                                            <div
-                                                className="border p-4 rounded-full"
-                                                style={{
-                                                    backgroundColor:
-                                                        field.value,
-                                                }}
-                                            ></div>
                                         </div>
                                     </FormControl>
                                     <FormMessage />

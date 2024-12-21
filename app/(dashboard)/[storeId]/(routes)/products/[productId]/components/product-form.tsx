@@ -352,7 +352,7 @@ const ProductForm: React.FC<ProductFormProps> = ({
                             control={form.control}
                             name="isFeatured"
                             render={({ field }) => (
-                                <FormItem className="flex flex-row items-center gap-x-4 gap-y-3 rounded-md border p-4">
+                                <FormItem className="flex flex-row items-center gap-x-4 gap-y-3 rounded-md border p-4 self-center">
                                     <FormControl>
                                         <Checkbox
                                             checked={field.value}
@@ -364,8 +364,7 @@ const ProductForm: React.FC<ProductFormProps> = ({
                                             Featured
                                         </FormLabel>
                                         <FormDescription>
-                                            This product will be featured on the
-                                            homepage
+                                            This product will be featured on the homepage
                                         </FormDescription>
                                     </div>
                                 </FormItem>
