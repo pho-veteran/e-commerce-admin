@@ -34,8 +34,20 @@ export async function POST(
                 },
             })
 
-            if (!order || order.paymentMethod !== "COD" || order.orderStatus !== "PENDING") {
+            if (!order) {
                 return new NextResponse("Invalid Request", { status: 400, headers: corsHeaders });
+            }
+
+            if (order.paymentMethod === "COD") {
+                if (order.orderStatus !== "PENDING") {
+                    return new NextResponse("Invalid Request", { status: 400, headers: corsHeaders });
+                }
+            }
+
+            if (order.paymentMethod === "ONLINE") {
+                if (order.orderStatus !== "NOTPAID") {
+                    return new NextResponse("Invalid Request", { status: 400, headers: corsHeaders });
+                }
             }
 
             const updatedOrder = await prisma.order.update({

@@ -38,7 +38,12 @@ export async function POST(
 
         const payload = await req.json();
 
-        const { orderId, clientIp, paymentMethod, customerId } = payload;
+        const { 
+            orderId, 
+            clientIp, 
+            paymentMethod, 
+            customerId 
+        } = payload;
 
         if (!orderId || !clientIp) {
             return new NextResponse("Invalid Request", {
