@@ -67,7 +67,7 @@ export default function StoreSwitcher({
                     role="combobox"
                     aria-expanded={open}
                     aria-label="Select a store"
-                    className={cn("w-full justify-between mt-2", className)}
+                    className={cn("w-full justify-between", className)}
                 >
                     <StoreIcon className="mr-2 h-4 w-4" />
                     {currentStore?.label || "Select a store"}
