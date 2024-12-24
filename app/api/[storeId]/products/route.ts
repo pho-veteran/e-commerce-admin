@@ -3,7 +3,17 @@ import { auth } from "@clerk/nextjs/server";
 
 import { prisma } from "@/lib/prismadb";
 
-export async function POST(
+const corsHeaders = {
+    "Access-Control-Allow-Origin": "*",
+    "Access-Control-Allow-Methods": "POST, GET, OPTIONS",
+    "Access-Control-Allow-Headers": "Content-Type, Authorization",
+};
+
+export async function OPTIONS() {
+    return NextResponse.json({}, { headers: corsHeaders });
+}
+
+export async function PUT(
     req: Request,
     { params }: { params: { storeId: string } }
 ) {
@@ -18,6 +28,7 @@ export async function POST(
             productSizes,
             productColors,
             images,
+            stock,
             isFeatured,
             isArchived,
         } = body;
@@ -71,8 +82,9 @@ export async function POST(
                         })),
                     },
                 },
+                stock,
                 isFeatured,
-                isArchived,
+                isArchived: !stock ? true : isArchived,
                 storeId: params.storeId,
                 images: {
                     createMany: {
@@ -105,7 +117,7 @@ export async function GET(
         const ids = searchParams.get("ids")?.split(",") || undefined;
 
         if (!params.storeId) {
-            return new NextResponse("Invalid Request", { status: 400 });
+            return new NextResponse("Invalid Request", { status: 400, headers: corsHeaders });
         }
 
         const product = await prisma.product.findMany({
@@ -120,12 +132,12 @@ export async function GET(
                 },
                 productColors: {
                     some: {
-                        colorId: colorId, 
+                        colorId: colorId,
                     },
                 },
                 productSizes: {
                     some: {
-                        sizeId: sizeId, 
+                        sizeId: sizeId,
                     },
                 },
                 id: ids ? { in: ids } : undefined,
@@ -135,7 +147,7 @@ export async function GET(
                 category: true,
                 productColors: {
                     include: {
-                        color: true, 
+                        color: true,
                     },
                 },
                 productSizes: {
@@ -149,9 +161,61 @@ export async function GET(
             },
         });
 
-        return NextResponse.json(product);
+        return NextResponse.json(product, { headers: corsHeaders });
     } catch (error) {
         console.error("[GET /api/products]", error);
-        return new NextResponse("Internal Server Error", { status: 500 });
+        return new NextResponse("Internal Server Error", { status: 500, headers: corsHeaders });
+    }
+}
+
+//Get Product Stock Quantity
+
+export async function POST(
+    req: Request,
+    { params }: { params: { storeId: string } }
+) {
+    try {
+        const body = await req.json();
+
+        const { productsId } = body;
+
+        if (!productsId || productsId.length === 0) {
+            return NextResponse.json([], {
+                headers: corsHeaders,
+            });
+        }
+
+        const store = await prisma.store.findFirst({
+            where: {
+                id: params.storeId,
+            },
+        });
+
+        if (!store) {
+            return new NextResponse("Store Not Found", {
+                status: 404,
+                headers: corsHeaders,
+            });
+        }
+
+        const productsStock = await prisma.product.findMany({
+            where: {
+                id: {
+                    in: productsId,
+                },
+            },
+            select: {
+                id: true,
+                stock: true,
+            },
+        });
+
+        return NextResponse.json(productsStock, { headers: corsHeaders });
+    } catch (error) {
+        console.error("[POST /api/products]", error);
+        return new NextResponse("Internal Server Error", {
+            status: 500,
+            headers: corsHeaders,
+        });
     }
 }

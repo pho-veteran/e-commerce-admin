@@ -62,18 +62,9 @@ export async function POST(
                     select: {
                         product: {
                             select: {
-                                images: true,
-                                name: true,
                                 price: true,
-                                category: {
-                                    select: {
-                                        name: true,
-                                    },
-                                },
                             },
                         },
-                        color: true,
-                        size: true,
                         quantity: true,
                     },
                 },

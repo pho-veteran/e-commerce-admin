@@ -13,6 +13,7 @@ export async function OPTIONS() {
     return NextResponse.json({}, { headers: corsHeaders });
 }
 
+//This Method is for customer to cancel order
 export async function POST(
     req: Request,
     { params }: { params: { storeId: string; orderId: string } }
@@ -32,6 +33,19 @@ export async function POST(
                     id: params.orderId,
                     customerId
                 },
+                include: {
+                    orderItems: {
+                        select: {
+                            product: {
+                                select: {
+                                    id: true,
+                                    stock: true
+                                }
+                            },
+                            quantity: true
+                        }
+                    }
+                }
             })
 
             if (!order) {
@@ -59,6 +73,15 @@ export async function POST(
                 },
             });
 
+            await Promise.all(
+                order.orderItems.map((item) =>
+                    prisma.product.update({
+                        where: { id: item.product.id },
+                        data: { stock: item.product.stock + item.quantity },
+                    })
+                )
+            );
+
             return NextResponse.json(updatedOrder, { headers: corsHeaders });
         }
 
@@ -69,7 +92,7 @@ export async function POST(
     }
 }
 
-
+//This method is for store to update order status
 export async function PATCH(
     req: Request,
     { params }: { params: { storeId: string; orderId: string } }
@@ -102,7 +125,73 @@ export async function PATCH(
             return new NextResponse("Unauthorized", { status: 403 });
         }
 
-        const order = await prisma.order.update({
+        const order = await prisma.order.findUnique({
+            where: {
+                storeId: params.storeId,
+                id: params.orderId,
+            },
+            include: {
+                orderItems: {
+                    select: {
+                        product: {
+                            select: {
+                                id: true,
+                                stock: true,
+                            },
+                        },
+                        quantity: true,
+                    },
+                },
+            },
+        });
+
+        if (!order) {
+            return new NextResponse("Invalid Request", { status: 400 });
+        }
+
+        if (order.orderStatus !== "CANCELLED") {
+            if (orderStatus === "CANCELLED") {
+                await Promise.all(
+                    order.orderItems.map((item) =>
+                        prisma.product.update({
+                            where: { id: item.product.id },
+                            data: { stock: item.product.stock + item.quantity },
+                        })
+                    )
+                );
+            }
+        } else {
+            if (orderStatus !== "CANCELLED") {
+                for (const item of order.orderItems) {
+                    const product = await prisma.product.findUnique({
+                        where: {
+                            id: item.product.id,
+                        },
+                    });
+
+                    if (!product) {
+                        return NextResponse.json({
+                            message: "Product not found",
+                            success: false,
+                        });
+                    }
+
+                    if (product.stock < item.quantity) {
+                        return NextResponse.json({
+                            message: "Product stock is not enough",
+                            success: false,
+                        });
+                    }
+
+                    await prisma.product.update({
+                        where: { id: item.product.id },
+                        data: { stock: product.stock - item.quantity },
+                    });
+                }
+            }
+        }
+
+        await prisma.order.update({
             where: {
                 storeId: params.storeId,
                 id: params.orderId,
@@ -113,7 +202,10 @@ export async function PATCH(
             },
         });
 
-        return NextResponse.json(order, { headers: corsHeaders });
+        return NextResponse.json({
+            message: "Order status updated",
+            success: true,
+        });
     } catch (error) {
         console.error("[PATCH /api/orders]", error);
         return new NextResponse("Internal Server Error", { status: 500 });

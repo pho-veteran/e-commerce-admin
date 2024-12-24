@@ -1,5 +1,3 @@
-import { format } from "date-fns";
-
 import { prisma } from "@/lib/prismadb";
 
 import { ProductClient } from "./components/client";
@@ -37,7 +35,7 @@ const ProductsPage = async ({
             category: product.category.name,
             productSizes: product.productSizes.length,
             productColors: product.productColors.length,
-            createdAt: format(product.createdAt, "MMMM do, yyyy"),
+            stock: product.stock,
         };
     });
 

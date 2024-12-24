@@ -1,11 +1,14 @@
 "use client"
-import { Settings } from "lucide-react";
-import StatusBadge from "./status-badge";
-import { Order } from "@prisma/client";
-import { currencyFormatter } from "@/lib/utils";
-import { OrderStatusCombobox } from "@/components/ui/status-combobox";
+
 import axios from "axios";
 import { useState } from "react";
+import { Settings } from "lucide-react";
+import { Order } from "@prisma/client";
+import { currencyFormatter } from "@/lib/utils";
+
+import StatusBadge from "./status-badge";
+import { OrderStatusCombobox } from "@/components/ui/status-combobox";
+import toast from "react-hot-toast";
 
 const badges = [
     {
@@ -67,11 +70,18 @@ const OrderStatusSection: React.FC<OrderStatusSectionProps> = ({
         if (statusValue === data.orderStatus) return;
         try {
             setLoading(true);
-            await axios.patch(`/api/${storeId}/orders/${orderId}`, {
+            const result = await axios.patch(`/api/${storeId}/orders/${orderId}`, {
                 orderStatus: statusValue
             });
+            const message = result.data.message;
+            if (result.data.success) {
+                toast.success(message);
+            } else {
+                toast.error(message);
+            }
         } catch (error) {
             console.error(error);
+            toast.error("Failed to update order status");
         } finally {
             window.location.reload();
         }

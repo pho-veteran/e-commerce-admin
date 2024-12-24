@@ -56,29 +56,41 @@ export async function POST(
                     select: {
                         product: {
                             select: {
-                                images: true,
-                                name: true,
+                                id: true,
                                 price: true,
-                                category: {
-                                    select: {
-                                        name: true,
-                                    },
-                                },
+                                stock: true,
                             },
                         },
-                        color: true,
-                        size: true,
                         quantity: true,
                     },
-                }
-            }
+                },
+            },
         });
+        
+        for (const item of order.orderItems) {
+            if (item.product.stock < item.quantity) {
+                await prisma.orderItem.deleteMany({
+                    where: { orderId: order.id },
+                });
+                await prisma.order.delete({ where: { id: order.id } });
 
-        const totalPrice =
-            order.orderItems.reduce(
-                (acc, item) => acc + item.product.price * item.quantity,
-                0
-            ) + order.shippingFee;
+                return NextResponse.json(
+                    {
+                        url: `${store.frontendUrl}/checkout/result?outOfStock=1`,
+                    },
+                    { headers: corsHeaders }
+                );
+            }
+        }
+
+        await Promise.all(
+            order.orderItems.map((item) =>
+                prisma.product.update({
+                    where: { id: item.product.id },
+                    data: { stock: item.product.stock - item.quantity, isArchived: item.product.stock - item.quantity === 0 },
+                })
+            )
+        );
 
         if (payload.paymentMethod === "COD") {
             return NextResponse.json(
@@ -88,6 +100,12 @@ export async function POST(
                 { headers: corsHeaders }
             );
         }
+
+        const totalPrice =
+        order.orderItems.reduce(
+            (acc, item) => acc + item.product.price * item.quantity,
+            0
+        ) + order.shippingFee;
 
         const vnpay = await getVNPayModel(
             store.vnpay_tmn,

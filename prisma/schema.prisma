@@ -87,6 +87,7 @@ model Product {
   price       Float
   isFeatured  Boolean @default(false)
   isArchived  Boolean @default(false)
+  stock       Int @default(1)
   productColors ProductColor[]
   productSizes  ProductSize[]
   images      Image[]

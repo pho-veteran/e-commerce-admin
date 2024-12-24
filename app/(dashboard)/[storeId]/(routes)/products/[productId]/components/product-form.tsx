@@ -56,6 +56,7 @@ const formSchema = z.object({
     categoryId: z.string(),
     productColors: z.string().array().min(1),
     productSizes: z.string().array().min(1),
+    stock: z.coerce.number().int().min(0),
     isFeatured: z.boolean().default(false).optional(),
     isArchived: z.boolean().default(false).optional(),
 });
@@ -97,6 +98,7 @@ const ProductForm: React.FC<ProductFormProps> = ({
                 categoryId: "",
                 productColors: [],
                 productSizes: [],
+                stock: 0,
                 isFeatured: false,
                 isArchived: false,
             },
@@ -134,7 +136,7 @@ const ProductForm: React.FC<ProductFormProps> = ({
             setLoading(true);
 
             if (!initialData) {
-                await axios.post(`/api/${params.storeId}/products`, data);
+                await axios.put(`/api/${params.storeId}/products`, data);
             } else {
                 await axios.patch(
                     `/api/${params.storeId}/products/${initialData.id}`,
@@ -269,6 +271,24 @@ const ProductForm: React.FC<ProductFormProps> = ({
                                             type="number"
                                             disabled={loading}
                                             placeholder="9.99"
+                                        />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                        <FormField
+                            control={form.control}
+                            name="stock"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Stock</FormLabel>
+                                    <FormControl>
+                                        <Input
+                                            {...field}
+                                            type="number"
+                                            disabled={loading}
+                                            placeholder="999"
                                         />
                                     </FormControl>
                                     <FormMessage />

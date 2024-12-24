@@ -58,6 +58,7 @@ export async function PATCH(
             productColors,
             productSizes,
             images,
+            stock,
             isFeatured,
             isArchived,
         } = body;
@@ -99,9 +100,10 @@ export async function PATCH(
             data: {
                 name,
                 price,
+                stock,
                 categoryId,
                 isFeatured,
-                isArchived,
+                isArchived: !stock ? true : isArchived,
                 storeId: params.storeId,
                 productColors: {
                     deleteMany: {},

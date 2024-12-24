@@ -228,7 +228,7 @@ export function ColorPicker({
               type="text"
               value={colorInput}
               onChange={handleColorInputChange}
-              className="flex-grow bg-white border border-gray-300 rounded-md text-sm h-8 px-2"
+              className="flex-grow bg-white border border-gray-300 rounded-md text-sm h-8 px-2 dark:bg-black"
               placeholder="#RRGGBB or hsl(h, s%, l%)"
             />
             <motion.div
